@@ -267,21 +267,24 @@ ticket context historically, respond COMMIT at the optional checkpoint below.
 
 ### Stage 1 — Architecture
 
+**⚠️ GATE RULE: Architecture Design Agent MUST NOT run `/approve` or write any file until the human explicitly responds APPROVE at Checkpoint A. Do not create any file or folder without approval.**
+
 1. Verify `tickets/{TICKET_ID}/ticket-context.md` exists
-2. Invoke Architecture Design Agent with command: `/ticket-architect`
-3. Agent reads context sources and produces draft
-4. Agent runs `/approve` → writes `tickets/{TICKET_ID}/architecture/architecture-decision.md`
-5. Present **Checkpoint A**:
+2. Invoke Architecture Design Agent with command: `/ticket-architect` **only**
+3. Agent reads context sources and produces an **in-memory draft** — no files are written at this point
+4. Agent returns draft summary to orchestrator (components touched, APIs designed, schema changes planned, flags)
+5. Present **Checkpoint A** (draft review — no artifact exists yet):
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔵 CHECKPOINT A — Architecture Design Agent completed
+🔵 CHECKPOINT A — Architecture Draft Ready for Review
 Ticket: {TICKET_ID}  |  Stage: Architecture  |  Time: {TIMESTAMP}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📄 ARTIFACT: tickets/{TICKET_ID}/architecture/architecture-decision.md
+⚠️  No file has been written yet. Approval is required before the
+    architecture-decision.md artifact is created.
 
-SUMMARY:
+DRAFT SUMMARY:
 {3–5 sentence summary of architecture decisions, components touched,
 APIs designed, and schema changes planned}
 
@@ -290,21 +293,30 @@ APIs designed, and schema changes planned}
 
 ─────────────────────────────────────────────────────
 RESPOND WITH:
-  APPROVE          → Proceed to Backend Implementation
-  REJECT           → Re-run Architecture Agent (provide feedback)
-  REVISE: {notes}  → Re-run with specific instructions
+  APPROVE          → Run /approve → write architecture-decision.md → proceed to Backend Implementation
+  REJECT           → Discard draft; re-run Architecture Agent from scratch (provide feedback)
+  REVISE: {notes}  → Discard draft; re-run /ticket-architect with specific instructions
 ─────────────────────────────────────────────────────
 ```
 
 6. Wait for human response. Handle per `human-checkpoint.behaviour.md`.
-7. On APPROVE: log `HUMAN_APPROVED`, then continue with the steps below.
-8. Invoke `jira-milestone-comment.skill` with (non-blocking):
+
+   - **On REJECT**: log `HUMAN_REJECTED`; re-invoke Architecture Design Agent with `/ticket-architect` (go back to step 2). No file is written.
+   - **On REVISE: {notes}**: log `HUMAN_REVISED`; re-invoke Architecture Design Agent with `/ticket-architect` and pass human notes as context (go back to step 2). No file is written.
+   - **On APPROVE**: continue to step 7.
+
+7. On APPROVE: log `HUMAN_APPROVED`
+8. Invoke Architecture Design Agent with command: `/approve`
+   → Agent writes `tickets/{TICKET_ID}/architecture/architecture-decision.md`
+   → Log: `ARTIFACT_CREATED`
+
+9. Invoke `jira-milestone-comment.skill` with (non-blocking):
     - ticket_id = {TICKET_ID}
     - milestone = "READY_FOR_DEV"
     - stage_label = "Architecture Design (Stage 1)"
     - artifacts = [{ name: "architecture-decision.md", path: "tickets/{TICKET_ID}/architecture/architecture-decision.md" }]
     - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
-9. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
+10. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
 
    Invoke `gitignore-curator.classify_and_propose` against the stage's
    candidate file list. If it surfaces flagged files, run that sub-checkpoint
@@ -1263,7 +1275,7 @@ On ABORT:
 | 0 | git-branch-manager (skill) | `setup_branch` |
 | 0.5 | ticket-context-builder (skill) | Invoked directly + optional commit |
 | 0.5 | git-branch-manager (skill) | `commit_stage` (optional, if COMMIT response) |
-| 1 | Architecture Design Agent | `/ticket-architect` → `/approve` |
+| 1 | Architecture Design Agent | `/ticket-architect` (draft only) → [CHECKPOINT A] → `/approve` (on human APPROVE only) |
 | 2 | Backend Implementation Agent | `/audit` → `/generate` → `/approve` |
 | 3a | Unit Test Agent | Invoked directly + coverage threshold check (retry up to 3x) |
 | 3b | Bugfix Agent | `/analyze` → (human reviews plan) → `/approve` |
@@ -1303,7 +1315,9 @@ LOOP_EXIT_MAX_RUNS              → Exit condition: max iterations reached
 LOOP_EXIT_ZERO_ISSUES           → Exit condition: no critical/high issues
 LOOP_EXIT_ESCALATION            → Exit condition: escalation detected
 PIPELINE_STARTED      → Stage 0 begins (Git Branch Setup)
-ARTIFACT_CREATED      → ticket-context.md created
+ARTIFACT_CREATED      → ticket-context.md created (or architecture-decision.md after APPROVE)
+ARCHITECTURE_DRAFT_REJECTED → Human rejected architecture draft; agent re-runs /ticket-architect
+ARCHITECTURE_DRAFT_REVISED  → Human revised architecture draft; agent re-runs /ticket-architect with notes
 CHECKPOINT_REACHED    → Each A/B/C/D/E checkpoint
 HUMAN_APPROVED        → Human APPROVE response
 HUMAN_REJECTED        → Human REJECT response
@@ -1344,6 +1358,8 @@ JIRA_COMMENT_PIPELINE_COMPLETE → Final completion comment posted
 ## Non-Goals
 
 - Do NOT generate architecture, code, tests, reviews, or bugfixes
+- Do NOT run `/approve` on the Architecture Design Agent before human APPROVE at Checkpoint A
+- Do NOT write `architecture-decision.md` before human APPROVE at Checkpoint A
 - Do NOT advance any stage without explicit human APPROVE
 - Do NOT modify source files, test files, or config files directly
 - Do NOT interpret ambiguous human responses — ask for clarification

@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Compiled output
+dist/
+build/
+*.js
+*.js.map
+*.d.ts
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+jest-coverage/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docker
+.docker/
+.dockerignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Application
+uploads/
+downloads/
+data/
+*.db
+*.sqlite
+
+# Testing containers
+.testcontainers-tcserver/
