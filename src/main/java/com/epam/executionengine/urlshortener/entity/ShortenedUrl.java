@@ -67,6 +67,7 @@ public class ShortenedUrl {
      * Incremented on each successful redirect.
      */
     @Column(name = "access_count", nullable = false)
+    @Builder.Default
     private Long accessCount = 0L;
 
     /**

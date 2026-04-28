@@ -2,6 +2,9 @@ package com.epam.executionengine.urlshortener.repository;
 
 import com.epam.executionengine.urlshortener.entity.ShortenedUrl;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,4 +44,18 @@ public interface ShortenedUrlRepository extends JpaRepository<ShortenedUrl, UUID
      * @return true if the short code exists, false otherwise
      */
     boolean existsByShortCode(String shortCode);
+
+    /**
+     * Atomically increments the access count for a shortened URL by 1.
+     * 
+     * This is performed at the database level to prevent lost updates under
+     * concurrent load. Ensures that all accesses are counted accurately.
+     * 
+     * Fix for CRITICAL Issue #2: Race Condition in Access Count Increment
+     * 
+     * @param shortCode the short code to increment
+     */
+    @Modifying
+    @Query("UPDATE ShortenedUrl SET accessCount = accessCount + 1 WHERE shortCode = :shortCode")
+    void incrementAccessCount(@Param("shortCode") String shortCode);
 }

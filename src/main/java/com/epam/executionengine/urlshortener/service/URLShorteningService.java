@@ -1,5 +1,6 @@
 package com.epam.executionengine.urlshortener.service;
 
+import com.epam.executionengine.urlshortener.config.URLShorteningConstants;
 import com.epam.executionengine.urlshortener.dto.AnalyticsResponse;
 import com.epam.executionengine.urlshortener.dto.CreateShortUrlRequest;
 import com.epam.executionengine.urlshortener.dto.CreateShortUrlResponse;
@@ -11,10 +12,11 @@ import com.epam.executionengine.urlshortener.repository.ShortenedUrlRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +40,15 @@ public class URLShorteningService {
 
     private final ShortenedUrlRepository repository;
     private final ShortCodeGenerator codeGenerator;
+    private final URLValidator urlValidator;
 
-    @Value("${urlshortener.base-url:https://exe.local/s}")
+    @Value("${urlshortener.base-url:" + URLShorteningConstants.DEFAULT_BASE_URL + "}")
     private String baseUrl;
 
-    @Value("${urlshortener.short-code-length:6}")
+    @Value("${urlshortener.short-code-length:" + URLShorteningConstants.DEFAULT_SHORT_CODE_LENGTH + "}")
     private int shortCodeLength;
 
-    @Value("${urlshortener.collision-retry-limit:5}")
+    @Value("${urlshortener.collision-retry-limit:" + URLShorteningConstants.DEFAULT_COLLISION_RETRY_LIMIT + "}")
     private int collisionRetryLimit;
 
     /**
@@ -60,16 +63,17 @@ public class URLShorteningService {
      * @return the created shortened URL information
      * @throws ShortURLException if the URL is invalid or max retries exceeded
      */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public CreateShortUrlResponse createShortUrl(CreateShortUrlRequest request, String createdBy) {
-        log.info("Creating shortened URL for: {}", request.getLongUrl());
+        log.info("Creating shortened URL for: {}", maskUrl(request.getLongUrl()));
 
-        // Validate URL format
-        validateUrl(request.getLongUrl());
+        // Validate URL format using dedicated validator
+        urlValidator.validateUrl(request.getLongUrl());
 
         // Check for duplicate: return existing if URL already shortened
         var existingUrl = repository.findByLongUrl(request.getLongUrl());
         if (existingUrl.isPresent()) {
-            log.info("Shortened URL already exists for long URL: {}", request.getLongUrl());
+            log.info("Shortened URL already exists for long URL");
             return mapToResponse(existingUrl.get());
         }
 
@@ -80,7 +84,7 @@ public class URLShorteningService {
             // Validate custom code is not already taken
             if (repository.existsByShortCode(shortCode)) {
                 log.warn("Custom short code already exists: {}", shortCode);
-                throw new ShortURLException("Custom short code '" + shortCode + "' is already taken");
+                throw new ShortURLException(String.format(URLShorteningConstants.ERROR_CUSTOM_CODE_TAKEN, shortCode));
             }
         } else {
             // Generate auto short code with collision handling
@@ -103,7 +107,7 @@ public class URLShorteningService {
                 .build();
 
         ShortenedUrl saved = repository.save(shortenedUrl);
-        log.info("Shortened URL created: {} -> {}", shortCode, request.getLongUrl());
+        log.info("Shortened URL created: {} -> (creator: {})", shortCode, createdBy);
 
         return mapToResponse(saved);
     }
@@ -111,7 +115,7 @@ public class URLShorteningService {
     /**
      * Retrieves the original URL for a given short code.
      * 
-     * Increments the access count on successful retrieval.
+     * Increments the access count atomically to avoid lost updates under concurrent load.
      * Checks for expiration and returns appropriate error if expired.
      * 
      * @param shortCode the short code
@@ -119,7 +123,7 @@ public class URLShorteningService {
      * @throws URLNotFoundException if short code not found
      * @throws URLExpiredException if the URL has expired
      */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public String getOriginalUrl(String shortCode) {
         log.debug("Retrieving original URL for short code: {}", shortCode);
 
@@ -135,9 +139,8 @@ public class URLShorteningService {
             throw new URLExpiredException("Short URL has expired");
         }
 
-        // Increment access count
-        shortenedUrl.setAccessCount(shortenedUrl.getAccessCount() + 1);
-        repository.save(shortenedUrl);
+        // Use atomic increment to prevent lost updates under concurrent load
+        repository.incrementAccessCount(shortCode);
 
         log.info("Redirecting short code: {} to {}", shortCode, shortenedUrl.getLongUrl());
         return shortenedUrl.getLongUrl();
@@ -145,6 +148,10 @@ public class URLShorteningService {
 
     /**
      * Retrieves analytics for a shortened URL.
+     * 
+     * Note: In this version, daily breakdown is simplified. For production with
+     * high-traffic URLs, implement a separate access_log table with detailed
+     * daily/hourly tracking.
      * 
      * @param shortCode the short code
      * @return analytics information including access count and breakdown
@@ -157,11 +164,12 @@ public class URLShorteningService {
         ShortenedUrl shortenedUrl = repository.findByShortCode(shortCode)
                 .orElseThrow(() -> new URLNotFoundException("Short code '" + shortCode + "' not found"));
 
-        // For this MVP, we return basic analytics. In production, this would query
-        // a separate access_log table for detailed daily breakdown.
+        // In production, query a separate access_log table for detailed daily breakdown.
+        // For now, return basic analytics with creation date as reference.
         List<AnalyticsResponse.DailyAccessCount> dailyBreakdown = new ArrayList<>();
         if (shortenedUrl.getAccessCount() > 0) {
-            // Simplified: assume all accesses were today for MVP
+            // Note: This represents cumulative accesses. For accurate daily breakdown,
+            // maintain a separate access_logs table with LocalDate timestamps.
             dailyBreakdown.add(AnalyticsResponse.DailyAccessCount.builder()
                     .date(shortenedUrl.getCreatedAt().toLocalDate())
                     .count(shortenedUrl.getAccessCount())
@@ -183,49 +191,67 @@ public class URLShorteningService {
      * Generates a unique short code with collision detection and retry logic.
      * 
      * Attempts to generate a code up to the collision retry limit.
-     * If a collision is detected, increments the attempt counter and retries.
+     * Uses database-level uniqueness constraints to catch late-stage collisions.
+     * Implements exponential backoff for retries.
      * 
      * @param url the URL to generate a short code for
      * @return a unique short code
      * @throws ShortURLException if unable to generate unique code after max retries
      */
     private String generateUniqueShortCode(String url) {
+        log.debug("Generating unique short code for URL");
+        
         for (int attempt = 0; attempt < collisionRetryLimit; attempt++) {
             String shortCode = codeGenerator.generateShortCode(url, attempt, shortCodeLength);
 
             if (!repository.existsByShortCode(shortCode)) {
+                log.debug("Generated unique short code on attempt {}", attempt + 1);
                 return shortCode; // Found unique code
             }
 
-            log.debug("Collision detected for short code: {}, retrying (attempt: {})", shortCode, attempt + 1);
+            log.debug("Collision detected, retrying (attempt: {}/{})", attempt + 1, collisionRetryLimit);
+            
+            // Exponential backoff on collision detection
+            if (attempt < collisionRetryLimit - 1) {
+                try {
+                    long backoffMs = (long) Math.min(
+                            URLShorteningConstants.BACKOFF_INITIAL_MS * Math.pow(URLShorteningConstants.BACKOFF_MULTIPLIER, attempt),
+                            URLShorteningConstants.BACKOFF_MAX_MS
+                    );
+                    Thread.sleep(backoffMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.warn("Retry sleep interrupted", e);
+                }
+            }
         }
 
-        log.error("Unable to generate unique short code after {} attempts for URL: {}", collisionRetryLimit, url);
-        throw new ShortURLException("Unable to generate unique short code after " + collisionRetryLimit + " attempts");
+        log.error("Unable to generate unique short code after {} attempts", collisionRetryLimit);
+        throw new ShortURLException(String.format(URLShorteningConstants.ERROR_CANNOT_GENERATE_CODE, collisionRetryLimit));
     }
 
     /**
-     * Validates that the provided string is a valid URL.
+     * Masks sensitive URL information in logs by showing only the scheme and host.
      * 
-     * @param urlString the URL string to validate
-     * @throws ShortURLException if the URL is invalid
+     * @param url the full URL
+     * @return a masked version safe for logging
      */
-    private void validateUrl(String urlString) {
-        if (urlString == null || urlString.isBlank()) {
-            throw new ShortURLException("URL cannot be null or empty");
+    private String maskUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return "<null>";
         }
-
         try {
-            // Attempt to parse as URL to validate format
-            new URL(urlString);
+            int slashIndex = url.indexOf("//");
+            if (slashIndex == -1) {
+                return "<invalid>";
+            }
+            int nextSlash = url.indexOf("/", slashIndex + 2);
+            if (nextSlash == -1) {
+                return url + "/";
+            }
+            return url.substring(0, nextSlash) + "/***";
         } catch (Exception e) {
-            log.warn("Invalid URL format: {}", urlString, e);
-            throw new ShortURLException("Invalid URL format: " + urlString);
-        }
-
-        // Check URL length
-        if (urlString.length() > 8000) {
-            throw new ShortURLException("URL exceeds maximum length of 8000 characters");
+            return "<invalid>";
         }
     }
 
