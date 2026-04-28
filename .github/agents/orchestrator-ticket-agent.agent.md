@@ -1,11 +1,11 @@
 ---
 name: Orchestrator Ticket Agent
 description: >
-  Master pipeline conductor for per-ticket development workflow.
-  Pulls a Jira ticket, coordinates all specialist agents in sequence,
-  enforces human checkpoints between every stage, manages file locks,
-  and tracks the review loop. Does not generate code, architecture,
-  tests, or reviews itself — it only routes, checkpoints, and controls.
+   Master pipeline conductor for per-ticket development workflow.
+   Pulls a Jira ticket, coordinates all specialist agents in sequence,
+   enforces human checkpoints between every stage, manages file locks,
+   and tracks the review loop. Does not generate code, architecture,
+   tests, or reviews itself — it only routes, checkpoints, and controls.
 model: claude-sonnet-4.6
 ---
 
@@ -163,7 +163,7 @@ Stage 4: Pipeline Complete
 1. Log: `PIPELINE_STARTED`
 2. Invoke `git-branch-manager.setup_branch` with `TICKET_ID`.
 3. The skill prompts the human for team prefix (and optional branch type override):
-    - Valid responses: `PREFIX: AIS|EXE|CVS|FE` (with optional `TYPE: feature|bugfix|release|hotfix`) or `CANCEL`.
+   - Valid responses: `PREFIX: AIS|EXE|CVS|FE` (with optional `TYPE: feature|bugfix|release|hotfix`) or `CANCEL`.
 4. On `CANCEL`: skill writes `git_enabled: false` to `git-context.md`. The
    pipeline proceeds, but every later commit/push checkpoint is skipped.
 5. On success: skill writes `tickets/{TICKET_ID}/git-context.md`, checks out
@@ -180,11 +180,11 @@ Stage 4: Pipeline Complete
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ```
 7. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "BACKLOG_CREATED"
-    - stage_label = "Git Branch Setup (Stage 0)"
-    - metrics = { branch: {BRANCH_NAME}, base: {BASE_BRANCH} }
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "BACKLOG_CREATED"
+   - stage_label = "Git Branch Setup (Stage 0)"
+   - metrics = { branch: {BRANCH_NAME}, base: {BASE_BRANCH} }
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 8. Proceed to Stage 0.5 (Build Ticket Context) automatically (no checkpoint here).
 
 ---
@@ -253,13 +253,13 @@ ticket context historically, respond COMMIT at the optional checkpoint below.
    ```
 
    On `COMMIT` or `EDIT:`:
-    - Run: `git add -f tickets/{TICKET_ID}/ticket-context.md .github/logs/`
-    - Commit with provided message
-    - Log: `COMMIT_CREATED`
+   - Run: `git add -f tickets/{TICKET_ID}/ticket-context.md .github/logs/`
+   - Commit with provided message
+   - Log: `COMMIT_CREATED`
 
    On `SKIP` (default):
-    - Log: `COMMIT_SKIPPED`
-    - Files remain in working tree (gitignored)
+   - Log: `COMMIT_SKIPPED`
+   - Files remain in working tree (gitignored)
 
 7. Proceed to Stage 1 (Architecture) automatically.
 
@@ -311,20 +311,20 @@ RESPOND WITH:
    → Log: `ARTIFACT_CREATED`
 
 9. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "READY_FOR_DEV"
-    - stage_label = "Architecture Design (Stage 1)"
-    - artifacts = [{ name: "architecture-decision.md", path: "tickets/{TICKET_ID}/architecture/architecture-decision.md" }]
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "READY_FOR_DEV"
+   - stage_label = "Architecture Design (Stage 1)"
+   - artifacts = [{ name: "architecture-decision.md", path: "tickets/{TICKET_ID}/architecture/architecture-decision.md" }]
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 10. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
 
-   Invoke `gitignore-curator.classify_and_propose` against the stage's
-   candidate file list. If it surfaces flagged files, run that sub-checkpoint
-   first and apply the human's IGNORE / STAGE / SKIP decisions before
-   continuing.
+Invoke `gitignore-curator.classify_and_propose` against the stage's
+candidate file list. If it surfaces flagged files, run that sub-checkpoint
+first and apply the human's IGNORE / STAGE / SKIP decisions before
+continuing.
 
-   Then invoke `git-branch-manager.commit_stage` with `STAGE_LABEL = architecture`.
-   The skill presents:
+Then invoke `git-branch-manager.commit_stage` with `STAGE_LABEL = architecture`.
+The skill presents:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💾 COMMIT? — {TICKET_ID} — Stage: {STAGE_LABEL}
@@ -352,18 +352,18 @@ In all cases, advance to the next pipeline step.
 
 1. Verify `tickets/{TICKET_ID}/architecture/architecture-decision.md` exists
 2. Invoke Backend Implementation Agent:
-    - `/audit` → surface any gaps, wait for human to resolve or proceed
-    - `/generate` → show design plan
-    - `/approve` → generate all implementation files
+   - `/audit` → surface any gaps, wait for human to resolve or proceed
+   - `/generate` → show design plan
+   - `/approve` → generate all implementation files
 
    **Config guard intercept:** If the Backend Implementation Agent requests
    any config file change, the orchestrator intercepts and runs the
    `config-permission.behaviour.md` flow before allowing the agent to proceed.
 
 3. Agent writes:
-    - `tickets/{TICKET_ID}/implementation/files-changed.md`
-    - `tickets/{TICKET_ID}/implementation/implementation-notes.md`
-    - Actual source files under `src/main/java/`
+   - `tickets/{TICKET_ID}/implementation/files-changed.md`
+   - `tickets/{TICKET_ID}/implementation/implementation-notes.md`
+   - Actual source files under `src/main/java/`
 
 4. Run build check (e.g., mvn compile)
 
@@ -414,15 +414,15 @@ RESPOND WITH:
 6. Wait for human response. Handle per `human-checkpoint.behaviour.md`.
 7. On APPROVE: log `HUMAN_APPROVED`, then continue with the steps below.
 8. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "DEVELOPMENT_STARTED"
-    - stage_label = "Backend Implementation"
-    - metrics = { files_created: {count}, dependencies_added: {count}, build_status: "PASSED" }
-    - artifacts = [
-      { name: "files-changed.md", path: "tickets/{TICKET_ID}/implementation/files-changed.md" },
-      { name: "implementation-notes.md", path: "tickets/{TICKET_ID}/implementation/implementation-notes.md" }
-      ]
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "DEVELOPMENT_STARTED"
+   - stage_label = "Backend Implementation"
+   - metrics = { files_created: {count}, dependencies_added: {count}, build_status: "PASSED" }
+   - artifacts = [
+     { name: "files-changed.md", path: "tickets/{TICKET_ID}/implementation/files-changed.md" },
+     { name: "implementation-notes.md", path: "tickets/{TICKET_ID}/implementation/implementation-notes.md" }
+     ]
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 9. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
 
    Invoke `gitignore-curator.classify_and_propose` against the stage's
@@ -480,9 +480,9 @@ Log: `LOOP_STARTED — Run {N}`
    ```
 
 2. Invoke Unit Test Agent with:
-    - `TICKET_ID = {id}`
-    - `RUN_NUMBER = {N}`
-    - `ATTEMPT = {attempt_count}`
+   - `TICKET_ID = {id}`
+   - `RUN_NUMBER = {N}`
+   - `ATTEMPT = {attempt_count}`
 
 3. Agent reads `implementation/files-changed.md` (Run 1) or `bugfix-reports/run-{N-1}-bugfix.md` (Run N+1)
 4. Agent writes `tickets/{TICKET_ID}/test-reports/run-{N}-report.md`
@@ -569,48 +569,48 @@ ELSE (Coverage OK OR Attempt = 3):
 
 8. **Handle Response:**
 
-    - **APPROVE** (if coverage below):
-        - If attempt < 3: Auto-retry Unit Test Agent (increment attempt_count, go to step 2)
-        - If attempt = 3: Log warning, post Jira milestones (steps 9–10), proceed to Bugfix
+   - **APPROVE** (if coverage below):
+      - If attempt < 3: Auto-retry Unit Test Agent (increment attempt_count, go to step 2)
+      - If attempt = 3: Log warning, post Jira milestones (steps 9–10), proceed to Bugfix
 
-    - **APPROVE** (if coverage OK):
-        - Log: COVERAGE_THRESHOLDS_MET
-        - Post Jira milestones (steps 9–10), proceed to Step 3b (Bugfix Agent)
+   - **APPROVE** (if coverage OK):
+      - Log: COVERAGE_THRESHOLDS_MET
+      - Post Jira milestones (steps 9–10), proceed to Step 3b (Bugfix Agent)
 
-    - **REVISE**:
-        - If attempt < 3: Retry with human notes
-        - If attempt = 3: Post Jira milestones (steps 9–10), proceed to Bugfix with notes logged
+   - **REVISE**:
+      - If attempt < 3: Retry with human notes
+      - If attempt = 3: Post Jira milestones (steps 9–10), proceed to Bugfix with notes logged
 
-    - **/skip-coverage** (override):
-        - Log: COVERAGE_THRESHOLD_OVERRIDE
-        - Post Jira milestones (steps 9–10), proceed to Bugfix
+   - **/skip-coverage** (override):
+      - Log: COVERAGE_THRESHOLD_OVERRIDE
+      - Post Jira milestones (steps 9–10), proceed to Bugfix
 
-    - **REJECT**:
-        - Re-run Unit Test Agent (reset attempt_count) — skip Jira posting
+   - **REJECT**:
+      - Re-run Unit Test Agent (reset attempt_count) — skip Jira posting
 
-    - **DONE**:
-        - Exit loop — skip Jira posting (loop-exit handler will post)
+   - **DONE**:
+      - Exit loop — skip Jira posting (loop-exit handler will post)
 
 9. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "TESTING_IN_PROGRESS"
-    - stage_label = "Unit Testing - Loop {N}"
-    - metrics = {
-      run_number: {N},
-      attempt: {attempt_count},
-      tests_passed: {passed_count},
-      tests_failed: {failed_count},
-      coverage: { service: {X}, controller: {Y}, overall: {Z} }
-      }
-    - artifacts = [{ name: "run-{N}-report.md", path: "tickets/{TICKET_ID}/test-reports/run-{N}-report.md" }]
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "TESTING_IN_PROGRESS"
+   - stage_label = "Unit Testing - Loop {N}"
+   - metrics = {
+     run_number: {N},
+     attempt: {attempt_count},
+     tests_passed: {passed_count},
+     tests_failed: {failed_count},
+     coverage: { service: {X}, controller: {Y}, overall: {Z} }
+     }
+   - artifacts = [{ name: "run-{N}-report.md", path: "tickets/{TICKET_ID}/test-reports/run-{N}-report.md" }]
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 
 10. If coverage thresholds met, additionally invoke `jira-milestone-comment.skill` with:
-    - ticket_id = {TICKET_ID}
-    - milestone = "COVERAGE_VERIFIED"
-    - stage_label = "Coverage Verification - Loop {N}"
-    - metrics = { service: {X}, controller: {Y}, overall: {Z}, status: "PASSED" }
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "COVERAGE_VERIFIED"
+   - stage_label = "Coverage Verification - Loop {N}"
+   - metrics = { service: {X}, controller: {Y}, overall: {Z}, status: "PASSED" }
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 
 11. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
 
@@ -648,8 +648,8 @@ In all cases, advance to the next pipeline step (Step 3b).
 #### Step 3b — Bugfix Agent
 
 1. Invoke Bugfix Agent with:
-    - `TICKET_ID = {id}`
-    - `RUN_NUMBER = {N}`
+   - `TICKET_ID = {id}`
+   - `RUN_NUMBER = {N}`
 2. Agent runs `/analyze` — produces fix plan
 3. **Orchestrator presents fix plan to human before `/approve`:**
 
@@ -702,12 +702,12 @@ RESPOND WITH:
 ```
 
 9. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "BUGFIX_IN_PROGRESS"
-    - stage_label = "Bugfix Cycle - Loop {N}"
-    - metrics = { fixes_applied: {X}, fixes_escalated: {Y}, build_status: "PASSED" }
-    - artifacts = [{ name: "run-{N}-bugfix.md", path: "tickets/{TICKET_ID}/bugfix-reports/run-{N}-bugfix.md" }]
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "BUGFIX_IN_PROGRESS"
+   - stage_label = "Bugfix Cycle - Loop {N}"
+   - metrics = { fixes_applied: {X}, fixes_escalated: {Y}, build_status: "PASSED" }
+   - artifacts = [{ name: "run-{N}-bugfix.md", path: "tickets/{TICKET_ID}/bugfix-reports/run-{N}-bugfix.md" }]
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 10. On APPROVE: proceed to Step 3c (Code Review Agent).
 11. On DONE: go to Loop Exit.
 12. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
@@ -745,8 +745,8 @@ In all cases, advance to the next pipeline step.
 #### Step 3c — Code Review Agent
 
 1. Invoke Code Review Agent with:
-    - `TICKET_ID = {id}`
-    - `RUN_NUMBER = {N}`
+   - `TICKET_ID = {id}`
+   - `RUN_NUMBER = {N}`
 2. Agent reads `implementation/files-changed.md` + `test-reports/run-{N}-report.md`
 3. Agent writes `tickets/{TICKET_ID}/review-reports/run-{N}-review.md`
 4. Run: `loop_tracker.register_issues(ticket_id, N, issues_from_report)`
@@ -780,12 +780,12 @@ RESPOND WITH:
 ```
 
 7. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "CODE_REVIEW_IN_PROGRESS"
-    - stage_label = "Code Review - Loop {N}"
-    - metrics = { critical: {C}, high: {H}, medium: {M}, low: {W}, verdict: "{VERDICT}" }
-    - artifacts = [{ name: "run-{N}-review.md", path: "tickets/{TICKET_ID}/review-reports/run-{N}-review.md" }]
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "CODE_REVIEW_IN_PROGRESS"
+   - stage_label = "Code Review - Loop {N}"
+   - metrics = { critical: {C}, high: {H}, medium: {M}, low: {W}, verdict: "{VERDICT}" }
+   - artifacts = [{ name: "run-{N}-review.md", path: "tickets/{TICKET_ID}/review-reports/run-{N}-review.md" }]
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 8. On APPROVE: proceed to Step 3d.
 9. On DONE: go to Loop Exit.
 10. **Commit sub-checkpoint** (only if `git_enabled: true` in `git-context.md`):
@@ -828,14 +828,14 @@ This step is **silent** — no human checkpoint unless build fails.
 
 1. Verify `code-review-report.md` and `TEST_REPORT.md` exist
 2. Invoke Code Refactor Agent with:
-    - `TICKET_ID = {id}`
-    - `RUN_NUMBER = {N}`
+   - `TICKET_ID = {id}`
+   - `RUN_NUMBER = {N}`
 3. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "REFACTORING_IN_PROGRESS"
-    - stage_label = "Code Refactoring - Loop {N}"
-    - metrics = { critical_issues: {C}, high_issues: {H}, action: "Automatic refactoring applied" }
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "REFACTORING_IN_PROGRESS"
+   - stage_label = "Code Refactoring - Loop {N}"
+   - metrics = { critical_issues: {C}, high_issues: {H}, action: "Automatic refactoring applied" }
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 4. Agent reads both reports
 5. Agent applies refactoring fixes (CRITICAL + HIGH severity)
 6. Agent writes `REFACTOR_REPORT.md`
@@ -847,12 +847,12 @@ This step is **silent** — no human checkpoint unless build fails.
 8. **Evaluate Build Result:**
 
    **IF BUILD PASSED:**
-    - Log: `REFACTOR_BUILD_PASSED`
-    - Proceed to Step 3f (Coverage Verification)
+   - Log: `REFACTOR_BUILD_PASSED`
+   - Proceed to Step 3f (Coverage Verification)
 
    **IF BUILD FAILED:**
-    - Log: `REFACTOR_BUILD_FAILED`
-    - Proceed to Step 3e (Bugfix Recovery)
+   - Log: `REFACTOR_BUILD_FAILED`
+   - Proceed to Step 3e (Bugfix Recovery)
 
 ---
 
@@ -863,9 +863,9 @@ This step is **silent** — no human checkpoint unless build fails.
 Only runs if previous step's build failed.
 
 1. Invoke Bugfix Agent with:
-    - `TICKET_ID = {id}`
-    - `RUN_NUMBER = {N}`
-    - `CONTEXT = "refactor-recovery"` (short cycle, bug fix only)
+   - `TICKET_ID = {id}`
+   - `RUN_NUMBER = {N}`
+   - `CONTEXT = "refactor-recovery"` (short cycle, bug fix only)
 2. Agent runs `/analyze` — identifies refactor-induced bugs
 3. **Orchestrator presents brief plan:**
 
@@ -897,11 +897,11 @@ RESPOND WITH:
 7. **Evaluate Build Result:**
 
    **IF BUILD PASSED:**
-    - Log: `BUGFIX_REFACTOR_BUILD_RECOVERED`
-    - Proceed to Step 3f (Coverage Verification)
+   - Log: `BUGFIX_REFACTOR_BUILD_RECOVERED`
+   - Proceed to Step 3f (Coverage Verification)
 
    **IF BUILD STILL FAILED:**
-    - Present checkpoint:
+   - Present checkpoint:
    ```
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ❌ BUILD STILL FAILING after Bugfix Recovery
@@ -930,9 +930,9 @@ Verifies that refactoring did not reduce coverage below thresholds.
    (refactor step ran `mvn clean verify` which includes JaCoCo)
 
 2. Extract coverage from `target/site/jacoco/jacoco.xml`:
-    - Service layer coverage: {X}%
-    - Controller layer coverage: {Y}%
-    - Overall coverage: {Z}%
+   - Service layer coverage: {X}%
+   - Controller layer coverage: {Y}%
+   - Overall coverage: {Z}%
 
 3. **Compare to Thresholds:**
 
@@ -979,40 +979,40 @@ RESPOND WITH:
 ```
 
 5. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "POST_REFACTOR_VERIFICATION"
-    - stage_label = "Coverage Verification after Refactor - Loop {N}"
-    - metrics = {
-      service_coverage: {X},
-      controller_coverage: {Y},
-      overall_coverage: {Z},
-      coverage_status: "{coverage_status}",
-      delta_service: {Δ+X},
-      delta_controller: {Δ+Y},
-      delta_overall: {Δ+Z}
-      }
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "POST_REFACTOR_VERIFICATION"
+   - stage_label = "Coverage Verification after Refactor - Loop {N}"
+   - metrics = {
+     service_coverage: {X},
+     controller_coverage: {Y},
+     overall_coverage: {Z},
+     coverage_status: "{coverage_status}",
+     delta_service: {Δ+X},
+     delta_controller: {Δ+Y},
+     delta_overall: {Δ+Z}
+     }
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 
 6. **Handle Response:**
 
-    - **APPROVE** (coverage OK):
-        - Log: `COVERAGE_VERIFICATION_PASSED`
-        - Proceed to Loop Exit Evaluation
+   - **APPROVE** (coverage OK):
+      - Log: `COVERAGE_VERIFICATION_PASSED`
+      - Proceed to Loop Exit Evaluation
 
-    - **APPROVE** (coverage degraded):
-        - Log: `COVERAGE_VERIFICATION_DEGRADED_APPROVED`
-        - Proceed to Loop Exit Evaluation (human accepted)
+   - **APPROVE** (coverage degraded):
+      - Log: `COVERAGE_VERIFICATION_DEGRADED_APPROVED`
+      - Proceed to Loop Exit Evaluation (human accepted)
 
-    - **REVISE**:
-        - Log: `COVERAGE_VERIFICATION_REVISED`
-        - Store notes
-        - Proceed to Loop Exit Evaluation
+   - **REVISE**:
+      - Log: `COVERAGE_VERIFICATION_REVISED`
+      - Store notes
+      - Proceed to Loop Exit Evaluation
 
-    - **RESTART**:
-        - Log: `LOOP_RESTART_COVERAGE_DEGRADED`
-        - Reset attempt_count = 0
-        - Increment run_counter (N+1)
-        - Go back to Step 3a (Unit Test Agent)
+   - **RESTART**:
+      - Log: `LOOP_RESTART_COVERAGE_DEGRADED`
+      - Reset attempt_count = 0
+      - Increment run_counter (N+1)
+      - Go back to Step 3a (Unit Test Agent)
 
 
 ---
@@ -1169,21 +1169,21 @@ NEXT STEPS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 5. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "PIPELINE_COMPLETED"
-    - stage_label = "Orchestrator Pipeline Complete"
-    - metrics = {
-      total_loop_runs: {N},
-      duration_seconds: {duration},
-      tests_passed: {X},
-      tests_failed: {Y},
-      coverage_line: {line%},
-      coverage_branch: {branch%},
-      critical_issues: 0,
-      high_issues: 0
-      }
-    - artifacts = [all test reports, review reports, bugfix reports]
-    - Log: `JIRA_COMMENT_PIPELINE_COMPLETE` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "PIPELINE_COMPLETED"
+   - stage_label = "Orchestrator Pipeline Complete"
+   - metrics = {
+     total_loop_runs: {N},
+     duration_seconds: {duration},
+     tests_passed: {X},
+     tests_failed: {Y},
+     coverage_line: {line%},
+     coverage_branch: {branch%},
+     critical_issues: 0,
+     high_issues: 0
+     }
+   - artifacts = [all test reports, review reports, bugfix reports]
+   - Log: `JIRA_COMMENT_PIPELINE_COMPLETE` (or `JIRA_COMMENT_FAILED`)
 ---
 
 ## Push Command (Human-Initiated)
@@ -1259,11 +1259,11 @@ On ABORT:
 1. `file_lock_manager.release_all_locks(ticket_id)`
 2. Log `PIPELINE_ABORTED`
 3. Invoke `jira-milestone-comment.skill` with (non-blocking):
-    - ticket_id = {TICKET_ID}
-    - milestone = "PIPELINE_ABORTED"
-    - stage_label = "Pipeline Aborted"
-    - metrics = { reason: "{abort_reason}", stage_at_abort: "{stage}", loop_run: {N} }
-    - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
+   - ticket_id = {TICKET_ID}
+   - milestone = "PIPELINE_ABORTED"
+   - stage_label = "Pipeline Aborted"
+   - metrics = { reason: "{abort_reason}", stage_at_abort: "{stage}", loop_run: {N} }
+   - Log: `JIRA_COMMENT_POSTED` (or `JIRA_COMMENT_FAILED`)
 4. Summarise what was completed before abort
 
 ---
