@@ -21,3 +21,4 @@
 | 4 | unit-tests-run-1 | test | test: add unit tests with 88.6% coverage -- EPMICMPCOD-304 | 394412c | false |
 | 5 | bugfix-run-1 | fix | fix: no bugs found in run 1 -- EPMICMPCOD-304 | d18ecec | false |
 | 6 | code-review-run-1 | docs | docs: add code review report run 1 -- EPMICMPCOD-304 | 1426d5a | false |
+| 7 | refactor-run-1 | refactor | refactor: apply code review fixes run 1 -- EPMICMPCOD-304 | 332ed61 | false |
