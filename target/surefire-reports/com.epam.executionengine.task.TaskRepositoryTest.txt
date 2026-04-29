@@ -1,0 +1,184 @@
+-------------------------------------------------------------------------------
+Test set: com.epam.executionengine.task.TaskRepositoryTest
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 0, Errors: 9, Skipped: 0, Time elapsed: 0.433 s <<< FAILURE! - in com.epam.executionengine.task.TaskRepositoryTest
+com.epam.executionengine.task.TaskRepositoryTest.testFindByUserIdAndStatus_nullStatus_returnsEmpty  Time elapsed: 0.032 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindById_existingTask_returnsTask  Time elapsed: 0.013 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindByUserId_nullUserId_returnsEmpty  Time elapsed: 0.004 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindByUserId_existingUser_returnsTaskList  Time elapsed: 0.003 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindByUserIdAndStatus_existingUserAndStatus_returnsFilteredTasks  Time elapsed: 0.008 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testSave_newTask_persistsToDatabase  Time elapsed: 0.006 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindByUserIdAndStatus_noMatchingCriteria_returnsEmpty  Time elapsed: 0.007 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindByUserId_noTasksForUser_returnsEmpty  Time elapsed: 0.001 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
+com.epam.executionengine.task.TaskRepositoryTest.testFindById_nonexistentTask_returnsEmpty  Time elapsed: 0 s  <<< ERROR!
+jakarta.persistence.EntityExistsException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:126)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:167)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:173)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:767)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745)
+	at org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager.persist(TestEntityManager.java:92)
+	at com.epam.executionengine.task.TaskRepositoryTest.setUp(TaskRepositoryTest.java:73)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: com.epam.executionengine.task.Task
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:90)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761)
+	... 6 more
+
