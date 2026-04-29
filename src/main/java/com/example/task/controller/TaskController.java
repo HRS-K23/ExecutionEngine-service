@@ -5,7 +5,6 @@ import com.example.task.dto.UpdateTaskRequest;
 import com.example.task.entity.Task;
 import com.example.task.service.TaskService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @Autowired
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }

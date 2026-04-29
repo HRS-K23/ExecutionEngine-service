@@ -4,9 +4,9 @@ import com.example.task.dto.CreateTaskRequest;
 import com.example.task.dto.UpdateTaskRequest;
 import com.example.task.entity.Task;
 import com.example.task.entity.TaskStatus;
+import com.example.task.exception.InvalidTaskException;
 import com.example.task.exception.TaskNotFoundException;
 import com.example.task.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,6 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
 
-    @Autowired
     public TaskServiceImpl(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
@@ -54,7 +53,10 @@ public class TaskServiceImpl implements TaskService {
     public Task updateTask(Long taskId, UpdateTaskRequest request) {
         Task task = getTaskById(taskId);
 
-        if (request.getTitle() != null && !request.getTitle().isBlank()) {
+        if (request.getTitle() != null) {
+            if (request.getTitle().isBlank()) {
+                throw new InvalidTaskException("Title must not be blank");
+            }
             task.setTitle(request.getTitle());
         }
         if (request.getDescription() != null) {
@@ -64,6 +66,8 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(request.getStatus());
             if (request.getStatus() == TaskStatus.COMPLETED) {
                 task.setCompletedAt(LocalDateTime.now());
+            } else {
+                task.setCompletedAt(null);
             }
         }
         if (request.getPriority() != null) {

@@ -65,7 +65,8 @@ public class Task {
     public void setPriority(TaskPriority priority) { this.priority = priority; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    // package-private: createdAt is @Column(updatable=false); post-persist mutation has no DB effect
+    void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
