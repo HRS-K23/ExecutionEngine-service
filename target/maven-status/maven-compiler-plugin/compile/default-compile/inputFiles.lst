@@ -1,0 +1,10 @@
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\exception\GlobalExceptionHandler.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\Task.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\TaskDTO.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\TaskMapper.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\TaskRepository.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\TaskService.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\exception\ErrorResponse.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\config\WebSecurityConfig.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\TaskController.java
+C:\EPAM\ExecutionEngine-service\src\main\java\com\epam\executionengine\task\TaskStatus.java

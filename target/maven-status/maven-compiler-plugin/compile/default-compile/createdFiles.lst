@@ -1,0 +1,13 @@
+com\epam\executionengine\exception\ErrorResponse$ErrorResponseBuilder.class
+com\epam\executionengine\task\Task.class
+com\epam\executionengine\task\TaskService.class
+com\epam\executionengine\config\WebSecurityConfig.class
+com\epam\executionengine\task\TaskDTO$TaskDTOBuilder.class
+com\epam\executionengine\exception\GlobalExceptionHandler.class
+com\epam\executionengine\task\TaskMapper.class
+com\epam\executionengine\task\Task$TaskBuilder.class
+com\epam\executionengine\exception\ErrorResponse.class
+com\epam\executionengine\task\TaskRepository.class
+com\epam\executionengine\task\TaskStatus.class
+com\epam\executionengine\task\TaskController.class
+com\epam\executionengine\task\TaskDTO.class
